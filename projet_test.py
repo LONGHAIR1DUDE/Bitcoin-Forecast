@@ -9,8 +9,13 @@ import xgboost as xgb
 import sklearn as sk
 
 from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from xgboost import XGBRegressor
+from sklearn import preprocessing
 from scipy import optimize 
 
 def convertion_prix(tab):
@@ -20,6 +25,7 @@ def convertion_prix(tab):
 	return float(temp)
 
 
+
 def convertion_vol(elt):
    
     temp=elt.replace('K','',1)
@@ -27,6 +33,8 @@ def convertion_vol(elt):
     temp=temp.replace('-','0.0',1)   
     return float(temp)*1000
      
+
+
 
 def convertion_variation(elt):
     temp=elt.replace(',','.',1)
@@ -49,6 +57,8 @@ def formating(elt, dtFrame,conversion_type):
 
 
 bitcoin = pd.read_csv('BTC-USD.csv',index_col='Date',parse_dates=True)
+cols_to_use = ['Dernier','Ouv.','Plus Haut','Plus Bas','Vol.','Variation %']
+
 
 
 formating('Ouv.',bitcoin,'prix')
@@ -58,15 +68,13 @@ formating('Plus Bas',bitcoin,'prix')
 formating('Vol.',bitcoin,'volume')
 formating('Variation %',bitcoin,'variation')
 
-print(bitcoin.head())
-#bitcoin['2020']['Plus Haut'].plot(figsize=(15,6))
-#bitcoin['2020']['Variation %'].plot(figsize=(15,6))
-#plt.show()
 
 
+for i in cols_to_use:
+    bitcoin[i] = bitcoin[i].astype(float)
 
-
-cols_to_use = ['Dernier','Ouv.','Plus Haut','Plus Bas','Vol.']
+print(bitcoin)
+print(bitcoin.dtypes)
 X = bitcoin[cols_to_use]
 # Select target
 y = bitcoin['Ouv.']
@@ -75,11 +83,18 @@ y = bitcoin['Ouv.']
 X_train, X_valid, y_train, y_valid = train_test_split(X, y)
 
 
-my_model = RandomForestRegressor(random_state=1)
-my_model.fit(X_train, y_train)
+
+
+my_model = XGBRegressor(n_estimators=1000, learning_rate=0.05)
+my_model.fit(X_train, y_train, 
+             early_stopping_rounds=5, 
+             eval_set=[(X_valid, y_valid)], 
+             verbose=False)
+
 
 
 predictions = my_model.predict(X_valid)
+
 print("Mean Absolute Error: " + str(mean_absolute_error(predictions, y_valid)))
-plt.plot(predictions)
-plt.show()
+df = pd.DataFrame(predictions, columns = ['Ouv.'])
+
