@@ -57,7 +57,7 @@ def formating(elt, dtFrame,conversion_type):
 
 
 bitcoin = pd.read_csv('BTC-USD.csv',index_col='Date',parse_dates=True)
-cols_to_use = ['Dernier','Ouv.','Plus Haut','Plus Bas','Vol.','Variation %']
+cols_to_use = ['Dernier','Plus Haut','Plus Bas','Vol.','Variation %']
 
 
 
@@ -96,5 +96,7 @@ my_model.fit(X_train, y_train,
 predictions = my_model.predict(X_valid)
 
 print("Mean Absolute Error: " + str(mean_absolute_error(predictions, y_valid)))
-df = pd.DataFrame(predictions, columns = ['Ouv.'])
+predictions_df = pd.DataFrame(predictions, columns = ['Ouv.'])
+print(y_valid)
+
 
