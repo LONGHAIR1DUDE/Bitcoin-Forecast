@@ -79,24 +79,41 @@ X = bitcoin[cols_to_use]
 # Select target
 y = bitcoin['Ouv.']
 
-# Separate data into training and validation sets
-X_train, X_valid, y_train, y_valid = train_test_split(X, y)
 
+x_train = X['2012':'2020']
+x_valid = X['2021']
+
+y_train=y['2012':'2020']
+y_valid=y['2021']
 
 
 
 my_model = XGBRegressor(n_estimators=1000, learning_rate=0.05)
-my_model.fit(X_train, y_train, 
+my_model.fit(x_train, y_train, 
              early_stopping_rounds=5, 
-             eval_set=[(X_valid, y_valid)], 
+             eval_set=[(x_valid, y_valid)], 
              verbose=False)
 
 
 
-predictions = my_model.predict(X_valid)
+predictions = my_model.predict(x_valid)
 
 print("Mean Absolute Error: " + str(mean_absolute_error(predictions, y_valid)))
-predictions_df = pd.DataFrame(predictions, columns = ['Ouv.'])
+predictions_df = pd.Series(predictions)
+
+print("---------------------------")
 print(y_valid)
+print("---------------------------")
+print(predictions_df)
 
 
+plt.figure()
+#predictions_df.plot(c='r')
+y_valid.plot(c='r')
+y_train.plot(c='b')
+plt.show()
+
+"""
+df=pd.DataFrame(y_valid)
+df.to_csv("output.csv")
+"""
