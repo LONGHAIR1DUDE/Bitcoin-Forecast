@@ -25,15 +25,15 @@ import plotly.graph_objs as go
 import gc
 
 import matplotlib.pyplot as plt
-import seaborn as sns
-
+import seaborn as sns; sns.set_theme()
+from prophet import Prophet
 import plotly.express as px
 
 def convertion_prix(tab):
-	temp=tab.replace('.','',1)
-	temp=temp.replace(',','.',1)
+    temp=tab.replace('.','',1)
+    temp=temp.replace(',','.',1)
 
-	return float(temp)
+    return float(temp)
 
 
 
@@ -66,36 +66,6 @@ def formating(elt, dtFrame,conversion_type):
         for i in range(dtFrame[elt].shape[0]):
             dtFrame[elt][i]=convertion_variation(dtFrame[elt][i])
 
-
-bitcoin = pd.read_csv('BTC-USD.csv',index_col='Date',parse_dates=[0],dayfirst=True)
-cols_to_use = ['Dernier','Plus Haut','Plus Bas','Vol.','Variation %']
-
-
-
-formating('Ouv.',bitcoin,'prix')
-formating('Dernier',bitcoin,'prix')
-formating('Plus Haut',bitcoin,'prix')
-formating('Plus Bas',bitcoin,'prix')
-formating('Vol.',bitcoin,'volume')
-formating('Variation %',bitcoin,'variation')
-
-
-
-
-X = bitcoin[cols_to_use]
-# Select target
-y = bitcoin['Ouv.']
-
-
-#x_train = X['2012':'2020']
-#x_valid = X['2021']
-#
-#y_train=y['2012':'2020']
-#y_valid=y['2021']
-
-split_date = '2021-05-01'
-data_train = bitcoin.loc[bitcoin.index <= split_date].copy()
-data_test = bitcoin.loc[bitcoin.index > split_date].copy()
 def create_features(df, label=None):
     """
     Creates time series features from datetime index
@@ -116,13 +86,6 @@ def create_features(df, label=None):
         y = df[label]
         return X, y
     return X
-
-X_train, y_train = create_features(data_train, label='Ouv.')
-X_test, y_test = create_features(data_test, label='Ouv.')
-
-
-df=pd.DataFrame(X_train)
-df.to_csv("output.csv")
 def XGB_model(x_train, y_train,x_valid,y_valid):
     my_model = XGBRegressor(n_estimators=3000, learning_rate=0.01,tree_method='hist',max_bin=300,objective ='reg:squarederror',
          alpha = 6)
@@ -135,13 +98,56 @@ def XGB_model(x_train, y_train,x_valid,y_valid):
    
     print("Mean Absolute Error: " + str(mean_absolute_error(predictions, y_valid)))
     return pd.Series(predictions)
+def Prophet_model(df_train,df_test):
+    model = Prophet()
+    model.fit(df_train)
+    p_predictions = model.predict(df=df_test.reset_index().rename(columns={'date':'ds'}))
+    print("<----------------------------------------->")
+    print('Prophet Mean absolute Error :'+str(mean_absolute_error(y_true=df_test['Ouv.'],
+                   y_pred=p_predictions['yhat'])))
+    return pd.Series(p_predictions['yhat'])
+    
+bitcoin = pd.read_csv('BTC-USD.csv',index_col='Date',parse_dates=[0],dayfirst=True)
+#cols_to_use = ['Dernier','Plus Haut','Plus Bas','Vol.','Variation %']
+
+
+
+formating('Ouv.',bitcoin,'prix')
+formating('Dernier',bitcoin,'prix')
+formating('Plus Haut',bitcoin,'prix')
+formating('Plus Bas',bitcoin,'prix')
+formating('Vol.',bitcoin,'volume')
+formating('Variation %',bitcoin,'variation')
+
+
+
+
+
+
+
+
+#Data Splitting
+split_date = '2021-06-01'
+data_train = bitcoin.loc[bitcoin.index <= split_date].copy()
+data_test = bitcoin.loc[bitcoin.index > split_date].copy()
+
+#Xgboost model prediction
+X_train, y_train = create_features(data_train, label='Ouv.')
+X_test, y_test = create_features(data_test, label='Ouv.')
 
 
 predictions_df = XGB_model(X_train,y_train,X_test,y_test)
+#Debbuging step only : Outputs a csv to review data after the fact
+df=pd.DataFrame(data_train)
+df.to_csv("output.csv")
+#Prophet prediciton Model
+data_train = data_train.reset_index().rename(columns={'date':'ds', 'Ouv.':'y'})
+prophet_pred_df =Prophet_model(data_train,data_test)
 
 
 
 
+#Model Comparision Graphs
 ax = list(bitcoin.index)
 trace1 = go.Scatter(
     x = ax,
@@ -153,13 +159,13 @@ trace2 = go.Scatter(
     x = ax,
     y= predictions_df,
     mode = 'lines',
-    name = 'XgBoost_pred_Open'
+    name = 'XgBoost Forecast'
 )
 trace3 = go.Scatter(
     x = ax,
-    y= bitcoin['Plus Haut'],
+    y= prophet_pred_df,
     mode = 'lines',
-    name = 'highest'
+    name = 'FaceBook Prophet Forecast'
 )
 layout = dict(
     title='Historical Bitcoin Prices (2012-2021) with the Slider ',
@@ -194,10 +200,11 @@ layout = dict(
 )
 data = [trace1,trace2,trace3]
 fig = go.Figure(data=data,layout=layout)
-#iplot(fig, filename = "Time Series with Rangeslider") 
-print("<----------------------------------------->")
 fig.write_html("output.html")
+
+print("<----------------------------------------->")
 print("Output File is Ready")
+#Seaborn data correlation heatmap
 df=bitcoin.astype(float)
-print(df.corr())
 sns.heatmap(df.corr(), annot=True, cmap='RdYlGn', linewidths=0.1, vmin=0)
+plt.show()
