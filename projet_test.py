@@ -4,7 +4,7 @@ import pandas as pd
 
 
 import scipy as sp
-
+import keras
 import xgboost as xgb
 import sklearn as sk
 import plotly
@@ -15,6 +15,10 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from xgboost import XGBRegressor
+from keras.layers import LSTM
+from keras.layers import Dense
+from keras.layers import Dropout
+from keras.models import Sequential
 from sklearn import preprocessing
 from scipy import optimize 
 from plotly import tools
@@ -68,6 +72,7 @@ def formating(elt, dtFrame,conversion_type):
 
 
 bitcoin = pd.read_csv('BTC-USD.csv',index_col='Date',parse_dates=True,dayfirst=True)
+#cols_to_use = ['Dernier','Plus Haut','Plus Bas','Vol.','Variation %']
 cols_to_use = ['Dernier','Plus Haut','Plus Bas','Vol.','Variation %']
 
 
@@ -84,18 +89,34 @@ formating('Variation %',bitcoin,'variation')
 for i in cols_to_use:
     bitcoin[i] = bitcoin[i].astype(float)
 
-print(bitcoin)
-print(bitcoin.dtypes)
+#print(bitcoin)
+#print(bitcoin.dtypes)
 X = bitcoin[cols_to_use]
 # Select target
 y = bitcoin['Ouv.']
 
 
-x_train = X['2012':'2020']
-x_valid = X['2021']
 
-y_train=y['2012':'2020']
-y_valid=y['2021']
+split_date ='2020-01-31'
+
+x_train = X.loc[X.index<=split_date]
+x_valid = X.loc['2021':]
+
+y_train = y.loc[y.index<=split_date]
+y_valid = y.loc['2021':]
+
+
+
+
+print(x_train.shape[0])
+print("-----------xtrain----------------")
+print(x_train)
+print("------------ytrain---------------")
+print(y_train)
+print("------------x_valid---------------")
+print(x_valid)
+print("-------------y_valid--------------")
+print(y_valid)
 
 
 
@@ -120,7 +141,7 @@ print(predictions_df)
 
 
 
-df=pd.DataFrame(bitcoin['Ouv.'])
+df=pd.DataFrame(bitcoin)
 df.to_csv("output.csv")
 
 ax = list(bitcoin.index)
@@ -173,5 +194,19 @@ iplot(fig, filename = "Time Series with Rangeslider")
 print("<----------------------------------------->")
 fig.write_html("output.html")
 print("Output File is Ready")
-print(y_train)
-print("<----------------------------------------->")
+
+
+
+
+"""
+model = Sequential()
+model.add(LSTM(100, input_shape=(x_train.shape[0], x_train.shape[1])))
+model.add(Dropout(0.2))
+#    model.add(LSTM(70))
+#    model.add(Dropout(0.3))
+model.add(Dense(1))
+model.compile(loss='mean_squared_error', optimizer='adam')
+"""
+# fit network
+#history = model.fit(x_train, y_train, epochs=20, batch_size=70, validation_data=(x_valid, y_valid), verbose=2, shuffle=False)
+
