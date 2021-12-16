@@ -198,15 +198,13 @@ print("Output File is Ready")
 
 
 
-"""
+
 model = Sequential()
 model.add(LSTM(100, input_shape=(x_train.shape[0], x_train.shape[1])))
 model.add(Dropout(0.2))
-#    model.add(LSTM(70))
-#    model.add(Dropout(0.3))
 model.add(Dense(1))
 model.compile(loss='mean_squared_error', optimizer='adam')
-"""
+
 # fit network
 #history = model.fit(x_train, y_train, epochs=20, batch_size=70, validation_data=(x_valid, y_valid), verbose=2, shuffle=False)
 
