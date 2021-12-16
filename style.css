@@ -1,0 +1,50 @@
+
+.page-holder {
+    min-height: 100vh;
+  }
+  
+  .bg-cover {
+    background-size: cover !important;
+  }
+  iframe {
+    border: 1px solid black;
+    width: 100%;
+}
+
+.output {
+    background: #eee;
+}
+#pred
+{
+
+background: rgba(196, 196, 196, 0.1);
+mix-blend-mode: normal;
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(50px);
+/* Note: backdrop-filter has minimal browser support */
+border-radius: 7px;
+
+
+}
+#Mae
+{
+
+background: rgba(60, 255, 0, 0.2);
+mix-blend-mode: normal;
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(50px);
+/* Note: backdrop-filter has minimal browser support */
+border-radius: 7px;
+
+
+}
+#blur, #blurProphet , #blurLSTM , #blurArima , #blurReal
+{
+  color: rgba(0,255,0,2);
+}
+#XgBoost
+{
+  color : rgba(255,215,0,3)
+}
+
+

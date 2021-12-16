@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd 
 
+import plotly.io as pio
+pio.templates
 
 import scipy as sp
 
@@ -104,9 +106,12 @@ def XGB_model(x_train, y_train,x_valid,y_valid):
     print("<----------------------------------------->")
    
     print("Mean Absolute Error: " + str(mean_absolute_error(predictions, y_valid)))
+    fileXg = open("sampleMae.txt", "w+")
+    fileXg.write(str(mean_absolute_error(predictions, y_valid)))
+    fileXg.close()
     return pd.Series(predictions)
 def Prophet_model(df_train,df_test):
-    model = Prophet()
+    model = Prophet(daily_seasonality=True)
     model.fit(df_train)
     p_predictions = model.predict(df=df_test.reset_index().rename(columns={'date':'ds'}))
     print("<----------------------------------------->")
@@ -120,7 +125,7 @@ def invboxcox(y,lmbda):
     if lmbda == 0:
         return(np.exp(y))
     else:
-      return(np.exp(np.log(lmbda*y+1)/lmbda))
+        return(np.exp(np.log(lmbda*y+1)/lmbda))
 
 
 bitcoin = pd.read_csv('BTC-USD.csv',index_col='Date',parse_dates=[0],dayfirst=True)
@@ -145,14 +150,21 @@ formating('Variation %',bitcoin,'variation')
 split_date = '2021-06-01'
 data_train = bitcoin.loc[bitcoin.index <= split_date].copy()
 data_test = bitcoin.loc[bitcoin.index > split_date].copy()
+date_listD = data_test.index.to_frame(index=False)
 
+print("<---------------------------THIS IS DATA_TEST------------------------------------->")
+print(date_listD)
 #Xgboost model prediction
 X_train, y_train = create_features(data_train, label='Ouv.')
 X_test, y_test = create_features(data_test, label='Ouv.')
 
 
 predictions_df = XGB_model(X_train,y_train,X_test,y_test)
-
+print("<---------------------------THIS IS 26/11/2021 pred------------------------------------->")
+print(predictions_df[0])
+file = open("sample.txt", "w+")
+file.write(predictions_df[0].astype('str'))
+file.close()
 #Prophet prediciton Model
 data_train = data_train.reset_index().rename(columns={'date':'ds', 'Ouv.':'y'})
 prophet_pred_df =Prophet_model(data_train,data_test)
@@ -166,13 +178,141 @@ df=bitcoin.astype(float)
 #sns.heatmap(df.corr(), annot=True, cmap='RdYlGn', linewidths=0.1, vmin=0)
 
 plt.show()
-#<-----------------------------ARIMA--------------------------------------->
+##<-----------------------------ARIMA--------------------------------------->
+##ARIMA model data pre-processing
+#
+#data_ARIMA =bitcoin.resample('D').mean()
+#data_ARIMA_month = data_ARIMA.resample('M').mean()
+#data_ARIMA_year = data_ARIMA.resample('A-DEC').mean()
+#data_ARIMA_Quarter = data_ARIMA.resample('Q-DEC').mean()
+## PLOTS
+#fig = plt.figure(figsize=[15, 7])
+#plt.suptitle('Bitcoin exchanges, mean USD', fontsize=22)
+#
+#plt.subplot(221)
+#plt.plot(data_ARIMA["Ouv."], '-', label='By Days')
+#plt.legend()
+#
+#plt.subplot(222)
+#plt.plot(data_ARIMA_month["Ouv."], '-', label='By Months')
+#plt.legend()
+#
+#plt.subplot(223)
+#plt.plot(data_ARIMA_Quarter["Ouv."], '-', label='By Quarters')
+#plt.legend()
+#
+#plt.subplot(224)
+#plt.plot(data_ARIMA_year["Ouv."], '-', label='By Years')
+#plt.legend()
+#
+## plt.tight_layout()
+#plt.savefig("output/bitcoin_d_m_y_q.png")
+##Stationarity check and STL-decomposition of the series
+#
+#plt.figure(figsize=[15,7])
+#sm.tsa.seasonal_decompose(data_ARIMA_month["Ouv."]).plot()
+#print("Seasonal Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month["Ouv."])[1])
+#plt.savefig("output/seasonal_decomp.png")
+##Box-Cox Transformations
+#data_ARIMA_month['Ouv_box'], lmbda = stats.boxcox(data_ARIMA_month["Ouv."])
+#print("Box-Cox Trans Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month["Ouv."])[1])
+##Seasonal differentiation
+#
+#data_ARIMA_month['Ouv_box_diff'] = data_ARIMA_month['Ouv_box'] - data_ARIMA_month['Ouv_box'].shift(12)
+#print("Seasonal Diff Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month['Ouv_box_diff'][12:])[1])
+#
+#
+## Regular differentiation
+#data_ARIMA_month['Ouv_box_diff2'] = data_ARIMA_month['Ouv_box_diff'] - data_ARIMA_month['Ouv_box_diff'].shift(1)
+#plt.figure(figsize=(15,7))
+#
+## STL-decomposition
+#sm.tsa.seasonal_decompose(data_ARIMA_month['Ouv_box_diff2'][13:]).plot()   
+#print("STL Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month['Ouv_box_diff2'][13:])[1])
+#
+#plt.savefig("output/STL_decomp.png")
+## Initial approximation of parameters using Autocorrelation and Partial Autocorrelation Plots
+#plt.figure(figsize=(15,7))
+#ax = plt.subplot(211)
+#sm.graphics.tsa.plot_acf(data_ARIMA_month['Ouv_box_diff2'][13:].values.squeeze(), lags=48, ax=ax)
+#ax = plt.subplot(212)
+#sm.graphics.tsa.plot_pacf(data_ARIMA_month['Ouv_box_diff2'][13:].values.squeeze(), lags=48, ax=ax)
+#plt.tight_layout()
+#plt.savefig("output/ARIMA_corr.png")
+## Initial approximation of parameters
+#Qs = range(0, 2)
+#qs = range(0, 3)
+#Ps = range(0, 3)
+#ps = range(0, 3)
+#D=1
+#d=1
+#parameters = product(ps, qs, Ps, Qs)
+#parameters_list = list(parameters)
+#len(parameters_list)
+#
+## Model Selection
+#results = []
+#best_aic = float("inf")
+#warnings.filterwarnings('ignore')
+#for param in parameters_list:
+#    try:
+#        model=sm.tsa.statespace.SARIMAX(data_ARIMA_month['Ouv_box'], order=(param[0], d, param[1]), 
+#                                        seasonal_order=(param[2], D, param[3], 12)).fit(disp=-1)
+#    except ValueError:
+#        print('wrong parameters:', param)
+#        continue
+#    aic = model.aic
+#    if aic < best_aic:
+#        best_model = model
+#        best_aic = aic
+#        best_param = param
+#    results.append([param, model.aic])
+#
+#
+## Best Models
+#result_table = pd.DataFrame(results)
+#result_table.columns = ['parameters', 'aic']
+#print(result_table.sort_values(by = 'aic', ascending=True).head())
+#print(best_model.summary())
+##Residue Analysis
+## STL-decomposition
+#plt.figure(figsize=(15,7))
+#plt.subplot(211)
+#best_model.resid[13:].plot()
+#plt.ylabel(u'Residuals')
+#ax = plt.subplot(212)
+#sm.graphics.tsa.plot_acf(best_model.resid[13:].values.squeeze(), lags=48, ax=ax)
+#
+#print("Dickey–Fuller test:: p=%f" % sm.tsa.stattools.adfuller(best_model.resid[13:])[1])
+#
+#plt.tight_layout()
+#plt.savefig("output/STL_resid.png")
+## Prediction
+#data_ARIMA_month2 = data_ARIMA_month[['Ouv.']]
+#date_list = [datetime(2021,10,31),datetime(2021,11,30),datetime(2021,12,31),datetime(2022,1,31),datetime(2022,2,28)]
+#future = pd.DataFrame(index=date_list, columns= data_ARIMA_month.columns)
+#data_ARIMA_month2 = pd.concat([data_ARIMA_month2, future])
+#
+#data_ARIMA_month2['forecast'] = invboxcox(best_model.predict(start=0, end=450), lmbda)
+#plt.figure(figsize=(15,7))
+#data_ARIMA_month2["Ouv."].plot()
+#data_ARIMA_month2.forecast.plot(color='r', ls='--', label='Predicted Ouv')
+#print(data_ARIMA_month2.forecast)
+#plt.legend()
+#plt.title('Bitcoin exchanges, by months')
+#plt.ylabel('mean USD')
+#plt.savefig("output/ARIMA_forecast.png")
+#<-----------------------------ARIMA DAILY--------------------------------------->
 #ARIMA model data pre-processing
 
-data_ARIMA =bitcoin
+data_ARIMA =bitcoin.resample('D').mean()
 data_ARIMA_month = data_ARIMA.resample('M').mean()
 data_ARIMA_year = data_ARIMA.resample('A-DEC').mean()
 data_ARIMA_Quarter = data_ARIMA.resample('Q-DEC').mean()
+data_ARIMA['Ouv.'].fillna(method='ffill', inplace=True)
+#Debbuging step only : Outputs a csv to review data after the fact
+df=pd.DataFrame(data_ARIMA["Ouv."])
+df.to_csv("output.csv")
 # PLOTS
 fig = plt.figure(figsize=[15, 7])
 plt.suptitle('Bitcoin exchanges, mean USD', fontsize=22)
@@ -198,40 +338,40 @@ plt.savefig("output/bitcoin_d_m_y_q.png")
 #Stationarity check and STL-decomposition of the series
 
 plt.figure(figsize=[15,7])
-sm.tsa.seasonal_decompose(data_ARIMA_month["Ouv."]).plot()
-print("Seasonal Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month["Ouv."])[1])
+sm.tsa.seasonal_decompose(data_ARIMA["Ouv."]).plot()
+print("Seasonal Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA["Ouv."])[1])
 plt.savefig("output/seasonal_decomp.png")
 #Box-Cox Transformations
-data_ARIMA_month['Ouv_box'], lmbda = stats.boxcox(data_ARIMA_month["Ouv."])
-print("Box-Cox Trans Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month["Ouv."])[1])
+data_ARIMA['Ouv_box'], lmbda = stats.boxcox(data_ARIMA["Ouv."])
+print("Box-Cox Trans Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA["Ouv."])[1])
 #Seasonal differentiation
-
-data_ARIMA_month['Ouv_box_diff'] = data_ARIMA_month['Ouv_box'] - data_ARIMA_month['Ouv_box'].shift(12)
-print("Seasonal Diff Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month['Ouv_box_diff'][12:])[1])
+print(data_ARIMA['Ouv_box'])
+data_ARIMA['Ouv_box_diff'] = data_ARIMA['Ouv_box'] - data_ARIMA['Ouv_box'].shift(12)
+print("Seasonal Diff Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA['Ouv_box_diff'][12:])[1])
 
 
 # Regular differentiation
-data_ARIMA_month['Ouv_box_diff2'] = data_ARIMA_month['Ouv_box_diff'] - data_ARIMA_month['Ouv_box_diff'].shift(1)
+data_ARIMA['Ouv_box_diff2'] = data_ARIMA['Ouv_box_diff'] - data_ARIMA['Ouv_box_diff'].shift(1)
 plt.figure(figsize=(15,7))
 
 # STL-decomposition
-sm.tsa.seasonal_decompose(data_ARIMA_month['Ouv_box_diff2'][13:]).plot()   
-print("STL Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month['Ouv_box_diff2'][13:])[1])
+sm.tsa.seasonal_decompose(data_ARIMA['Ouv_box_diff2'][13:]).plot()   
+print("STL Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA['Ouv_box_diff2'][13:])[1])
 
 plt.savefig("output/STL_decomp.png")
 # Initial approximation of parameters using Autocorrelation and Partial Autocorrelation Plots
 plt.figure(figsize=(15,7))
 ax = plt.subplot(211)
-sm.graphics.tsa.plot_acf(data_ARIMA_month['Ouv_box_diff2'][13:].values.squeeze(), lags=48, ax=ax)
+sm.graphics.tsa.plot_acf(data_ARIMA['Ouv_box_diff2'][13:].values.squeeze(), lags=48, ax=ax)
 ax = plt.subplot(212)
-sm.graphics.tsa.plot_pacf(data_ARIMA_month['Ouv_box_diff2'][13:].values.squeeze(), lags=48, ax=ax)
+sm.graphics.tsa.plot_pacf(data_ARIMA['Ouv_box_diff2'][13:].values.squeeze(), lags=48, ax=ax)
 plt.tight_layout()
 plt.savefig("output/ARIMA_corr.png")
 # Initial approximation of parameters
-Qs = range(0, 2)
-qs = range(0, 3)
+Qs = range(0, 3)
+qs = range(0, 2)
 Ps = range(0, 3)
-ps = range(0, 3)
+ps = range(0, 2)
 D=1
 d=1
 parameters = product(ps, qs, Ps, Qs)
@@ -244,7 +384,7 @@ best_aic = float("inf")
 warnings.filterwarnings('ignore')
 for param in parameters_list:
     try:
-        model=sm.tsa.statespace.SARIMAX(data_ARIMA_month['Ouv_box'], order=(param[0], d, param[1]), 
+        model=sm.tsa.statespace.SARIMAX(data_ARIMA['Ouv_box'], order=(param[0], d, param[1]), 
                                         seasonal_order=(param[2], D, param[3], 12)).fit(disp=-1)
     except ValueError:
         print('wrong parameters:', param)
@@ -255,6 +395,7 @@ for param in parameters_list:
         best_aic = aic
         best_param = param
     results.append([param, model.aic])
+    print("Done")
 
 
 # Best Models
@@ -276,12 +417,14 @@ print("Dickey–Fuller test:: p=%f" % sm.tsa.stattools.adfuller(best_model.resid
 plt.tight_layout()
 plt.savefig("output/STL_resid.png")
 # Prediction
-data_ARIMA_month2 = data_ARIMA_month[['Ouv.']]
-date_list = [datetime(2021,10,31),datetime(2021,11,30),datetime(2021,12,31),datetime(2022,1,31),datetime(2022,2,28)]
-future = pd.DataFrame(index=date_list, columns= data_ARIMA_month.columns)
-data_ARIMA_month2 = pd.concat([data_ARIMA_month2, future])
+data_ARIMA_month2 = data_ARIMA[['Ouv.']]
 
-data_ARIMA_month2['forecast'] = invboxcox(best_model.predict(start=0, end=450), lmbda)
+date_list = ["2021-06-01","2021-06-02","2021-06-03","2021-06-04","2021-06-05"]
+future = pd.DataFrame(index=date_listD['Date'], columns= data_ARIMA.columns)
+data_ARIMA_month2 = pd.concat([data_ARIMA, future])
+
+data_ARIMA_month2['forecast'] = invboxcox(best_model.predict(start=0, end=3800
+                                                             ), lmbda)
 plt.figure(figsize=(15,7))
 data_ARIMA_month2["Ouv."].plot()
 data_ARIMA_month2.forecast.plot(color='r', ls='--', label='Predicted Ouv')
@@ -290,8 +433,9 @@ plt.legend()
 plt.title('Bitcoin exchanges, by months')
 plt.ylabel('mean USD')
 plt.savefig("output/ARIMA_forecast.png")
-
-
+weights = np.arange(1,11)
+wma10 = bitcoin['Ouv.'].rolling(10).apply(lambda prices: np.dot(prices, weights)/weights.sum(), raw=True)
+bitcoin['Our 10-day WMA'] = np.round(wma10, decimals=3)
 #Model Comparision Graphs
 ax = list(bitcoin.index)
 ax_ARIMA = list(data_ARIMA_month2.index)
@@ -319,6 +463,12 @@ trace4 = go.Scatter(
     mode = 'lines',
     name = 'ARIMA Forecast'
 )
+trace5 = go.Scatter(
+    x = ax,
+    y= bitcoin['Our 10-day WMA'],
+    mode = 'lines',
+    name = '10 day WMA'
+)
 layout = dict(
     title='Historical Bitcoin Open Prices (2012-2021) and Model Predictions',
     xaxis=dict(
@@ -342,7 +492,8 @@ layout = dict(
                      step='month',
                      stepmode='backward'),
                 dict(step='all')
-            ])
+            ]),
+             bgcolor="black"
         ),
         rangeslider=dict(
             visible = True
@@ -350,12 +501,22 @@ layout = dict(
         type='date'
     )
 )
-data = [trace1,trace2,trace3,trace4]
+print('================================ARIMA 26-11 pred ========================================')
+print(data_ARIMA_month2.forecast.get("2021-11-26").drop_duplicates())
+filearima = open("sampleARIMA.txt", "w+")
+filearima.write(data_ARIMA_month2.forecast.get("2021-11-26").drop_duplicates().to_string())
+filearima.close()
+df=pd.DataFrame(data_ARIMA_month2.forecast)
+df.to_csv("output.csv")
+data = [trace1,trace2,trace3,trace4,trace5]
 fig = go.Figure(data=data,layout=layout)
+fig.update_layout(template="plotly_dark")
 fig.write_html("output/output.html")
+
+dataXgboost = [trace1,trace2]
+fig = go.Figure(data=dataXgboost,layout=layout)
+fig.update_layout(template="plotly_dark")
+fig.write_html("output/outputXg.html")
 
 print("<----------------------------------------->")
 print("Output File is Ready")
-#Debbuging step only : Outputs a csv to review data after the fact
-df=pd.DataFrame(data_ARIMA_month2.forecast)
-df.to_csv("output/output.csv")
