@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import fbprophet as fbp
 
 
-data=pd.read_csv("output.csv")
+data=pd.read_csv("inputProphet.csv")
 data['Date']=pd.DatetimeIndex(data['Date'],dayfirst=True)
 
 print(data)
