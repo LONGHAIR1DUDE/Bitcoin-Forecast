@@ -78,7 +78,7 @@ def forecast_lstm(model, batch_size, X):
 	return yhat[0,0]
  
 # load dataset
-series =read_csv('output.csv',index_col='Date',parse_dates=True,dayfirst=True)
+series =read_csv('inputProphet.csv',index_col='Date',parse_dates=True,dayfirst=True)
 series=series['Ouv.']
 # split_date ='2020-01-31'
 # series = series.loc[series.index>=split_date]

@@ -35,6 +35,8 @@ import statsmodels.api as sm
 import warnings
 from itertools import product
 from datetime import datetime
+import fbprophet as fbp
+import warnings;
 warnings.filterwarnings('ignore')
 plt.style.use('seaborn-poster')
 
@@ -112,14 +114,6 @@ def XGB_model(x_train, y_train,x_valid,y_valid):
     fileXg.write(str(mean_absolute_error(predictions, y_valid)))
     fileXg.close()
     return pd.Series(predictions)
-def Prophet_model(df_train,df_test):
-    model = Prophet(daily_seasonality=True)
-    model.fit(df_train)
-    p_predictions = model.predict(df=df_test.reset_index().rename(columns={'date':'ds'}))
-    print("<----------------------------------------->")
-    print('Prophet Mean absolute Error :'+str(mean_absolute_error(y_true=df_test['Ouv.'],
-                   y_pred=p_predictions['yhat'])))
-    return pd.Series(p_predictions['yhat'])
 
 
 # Inverse Box-Cox Transformation Function
@@ -170,8 +164,33 @@ file = open("sample.txt", "w+")
 file.write(predictions_df[0].astype('str'))
 file.close()
 #Prophet prediciton Model
-data_train = data_train.reset_index().rename(columns={'date':'ds', 'Ouv.':'y'})
-prophet_pred_df =Prophet_model(data_train,data_test)
+data=bitcoin
+data['Date']=pd.DatetimeIndex(data['Date'],dayfirst=True)
+
+print(data)
+
+
+
+
+data['ds']=data['Date']
+data['y']=data['Ouv.']
+data.drop(['Dernier','Plus Haut','Plus Bas','Vol.','Variation %','Date','Ouv.'],axis=1,inplace=True)
+
+
+
+print(data.dtypes)
+print(data.head())
+
+
+
+
+m=fbp.Prophet(interval_width=0.95,daily_seasonality=True)
+model=m.fit(data)
+
+futur=m.make_future_dataframe(periods=300,freq='D')
+prediction=m.predict(futur)
+# prediction=prediction[['ds','yhat']]
+
 
 
 
@@ -461,7 +480,7 @@ trace2 = go.Scatter(
 )
 trace3 = go.Scatter(
     x = ax,
-    y= prophet_pred_df,
+    y= predicition,
     mode = 'lines',
     name = 'FaceBook Prophet Forecast'
 )
