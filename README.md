@@ -6,8 +6,8 @@
 
 ***
 ### **Objectif :**
-### Une application Python qui applique plusieurs modèles prédicitives sur les données historiques OHLCV (2012-2021) du [Bitcoin](https://coinmarketcap.com/currencies/bitcoin/) et prédit le prix de ce dernier , les résultats sont présentés sur le site web dans `index.html` .
-### Les modèles prédictives implémentés :
+###  Application de plusieurs modèles de prédictions issus de différentes Bibliothèques Python implementant des techniques de Deep et de Machine sur les données historiques OHLCV (2012-2021) du [Bitcoin](https://coinmarketcap.com/currencies/bitcoin/) pour tenter de prédir le cours de celui-ci et présentation des résultats sur forme d'un site web (`index.html` ).
+### Les modèles de prédiction implémentés :
  * XGBOOST  : eXtreme Gradient Boosting .
  * Facebook Prophet .
  * LSTM : Long short-term Memory.
@@ -43,7 +43,7 @@
 * `projet_test.py` : Un fichier python qui contient l'implémentation de tous les modèles et génere des graphes et des résultats qu'on présente dans `index.html` .
 ------------------------
 ### Code : 
-##### Les prédictions se font à l'aide fonctions suivantes :
+##### Les prédictions se font à l'aide des méthodes suivantes :
 * Xgboost :
    ``` 
    def XGB_model(x_train, y_train,x_valid,y_valid):
