@@ -42,13 +42,13 @@ border-radius: 7px;
 {
   color: rgba(0,255,0,2);
 }
-#XgBoost , #MaeXg ,#Rmse
+#XgBoost , #MaeXg ,#Rmse, #PMAE
 {
   color : rgba(255,215,0,3)
 }
 .bg
 {
-  background: url(btc1.jpg) ; 
+  background: url(btc.jpg) ; 
   background-attachment: local;
 }
 #btn-back-to-top {
@@ -57,12 +57,7 @@ border-radius: 7px;
   right: 20px;
   display: none;
 }
-#Arima
+#Arima , #AMAE
 {
   color : lime
-}
-.img
-{
-  width:500px;
-  height:600px;
 }

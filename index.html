@@ -20,7 +20,7 @@
  
 
 <!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-container">
+<div class="tradingview-widget-container position-fixed-top">
   <div class="tradingview-widget-container__widget"></div>
   <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
   {
@@ -102,8 +102,8 @@
       
   <!--ScrollNav-->
   
-<nav id="navbar-example3" class="navbar navbar-dark bg-dark flex-column align-items-stretch p-3">
-  <nav class="nav nav-pills flex-column">
+<nav id="navbar-example3" class="navbar navbar-fixed navbar-dark bg-dark flex-column align-items-stretch p-3 ">
+  <nav class="nav nav-pills flex-column ">
     <a class="nav-link" href="#item-1">Forecast Models</a>
     <nav class="nav nav-pills flex-column">
       <a class="nav-link ms-3 my-1" href="#item-1-1">XgBoost</a>
@@ -126,13 +126,13 @@
     title="Inline Frame Example"
     width="300"
     height="800"
-    src="output/output.html">
+    src="output/html/output.html">
 </iframe>
 </div>
 </div>
 <script type="text/javascript">
 
- pred = fetch("sample.txt")
+ pred = fetch("output/txt/sample.txt")
 	.then((response) => {
   		return response.text();
 	})
@@ -140,7 +140,7 @@
   		console.log(text);
       document.getElementById('blur').innerHTML = " <br><center> XGBoost :</center> \n <font size='2'>Today's Predicted Closing :<br></font> <br><center><font size='5'>"+text+" $</font> </center> ";
 	});
-  predArima = fetch("sampleARIMA.txt")
+  predArima = fetch("output/txt/sampleARIMA.txt")
 	.then((response) => {
   		return response.text();
 	})
@@ -148,7 +148,7 @@
   		console.log(text);
       document.getElementById('blurArima').innerHTML = " <br><center> ARIMA :</center> \n <font size='2'>Predicted Monthly Close :</font> <br><center><font size='5'>"+text+" $</font> </center> ";
 	});
-  predProphet = fetch("sampleProphet.txt")
+  predProphet = fetch("output/txt/sampleProphet.txt")
 	.then((response) => {
   		return response.text();
 	})
@@ -156,13 +156,13 @@
   		console.log(text);
       document.getElementById('blurProphet').innerHTML = " <br><center>Prophet :</center> \n <font size='2'>Today's Predicted Closing  :<br></font> <br><center><font size='5'>"+text+" $</font> </center> ";
 	});
-  predLSTM = fetch("sampleLSTM.txt")
+  predLSTM = fetch("output/txt/sampleLSTM.txt")
 	.then((response) => {
   		return response.text();
 	})
 	.then((text) => {
   		console.log(text);
-      document.getElementById('blurLSTM').innerHTML = " <br><center> LSTM prediction</center> \n <font size='1'>Today's Predicted Closing :</font> <center><font size='5'>"+text+" $ </font></center> <br>";
+      document.getElementById('blurLSTM').innerHTML = " <br><center> LSTM :</center> \n <font size='2'>Today's Predicted Closing :<br></font> <br><center><font size='5'>"+text+" $ </font></center> <br>";
 	});
  
  
@@ -187,12 +187,12 @@
   title="Inline Frame "
   width="300"
   height="600"
-  src="output/outputXg.html">
+  src="output/html/outputXg.html">
 </iframe>
 </div></div>
 
   <script type="text/javascript">
-    MaeXg = fetch("sampleMae.txt")
+    MaeXg = fetch("output/txt/sampleMae.txt")
     .then((response) => {
         return response.text();
     })
@@ -200,7 +200,7 @@
         console.log(text);
         document.getElementById('MaeXg').innerHTML = "<br><center> Mean Absolute Error: "+text+" $ </center><br>";
     });
-    Rmse = fetch("sampleRmse.txt")
+    Rmse = fetch("output/txt/sampleRmse.txt")
     .then((response) => {
         return response.text();
     })
@@ -208,7 +208,22 @@
         console.log(text);
         document.getElementById('Rmse').innerHTML = "<br><center> Regular Mean Squared Error :  "+text+" $ </center><br>";
     });
-
+    PMAE = fetch("output/txt/samplePMAE.txt")
+    .then((response) => {
+        return response.text();
+    })
+    .then((text) => {
+        console.log(text);
+        document.getElementById('PMAE').innerHTML = "<br><center> Regular Mean Squared Error :  "+text+" $ </center><br>";
+    });
+    AMAE = fetch("output/txt/sampleAMae.txt")
+    .then((response) => {
+        return response.text();
+    })
+    .then((text) => {
+        console.log(text);
+        document.getElementById('AMAE').innerHTML = "<br><center> Mean Absolute Error :  "+text+" $ </center><br>";
+    });
   </script>
   <br>
   <div class="row" id="item-1-2">
@@ -234,7 +249,7 @@
     title="Inline Frame "
     width="300"
     height="600"
-    src="output/outputLSTM.html">
+    src="output/html/outputLSTM.html">
   </iframe>
   </div></div>
   <br>
@@ -246,6 +261,14 @@
     </div>
   </div>
   <br>
+  <div class ="row"> 
+    <div class="col-auto"><br></div>
+    <div class="col-sm-2"><br></div>
+    <div id="Mae" class = "col-sm-8"><div id="PMAE"><br></div></div>
+  
+  </div>
+  <br>
+  <br>
   <div class='row'>
     <div class="col-sm-3"></div>
     <div class="col-sm-6">
@@ -253,7 +276,7 @@
     title="Inline Frame "
     width="300"
     height="600"
-    src="output/outputProphet.html">
+    src="output/html/outputProphet.html">
   </iframe>
   </div></div>
   <br>
@@ -266,6 +289,15 @@
     </div>
   </div>
   <br>
+
+  <div class ="row"> 
+    <div class="col-auto"><br></div>
+    <div class="col-sm-2"><br></div>
+    <div id="Mae" class = "col-sm-8"><div id="AMAE"><br></div></div>
+  
+  </div>
+  <br>
+  <br>
   <div class='row'>
     <div class="col-sm-3"></div>
     <div class="col-sm-6">
@@ -273,10 +305,11 @@
     title="Inline Frame "
     width="300"
     height="600"
-    src="output/outputARIMA.html">
+    src="output/html/outputARIMA.html">
   </iframe>
   </div></div>
   <br>
+  
   <div class="row" id="item-2">
     <div class="col-auto"><br></div>
     <div class="col-sm-4"><br></div>
@@ -287,37 +320,37 @@
   <br>
   <div class="row" >
   <div class="col-sm-3"><br></div>
-  <div class="col-sm-4"><img src="output/corr_heatmap.png" alt="Feature Correlation heatmap" width="900" height="600"> </div>
+  <div class="col-sm-4"><img src="output/png/corr_heatmap.png" alt="Feature Correlation heatmap" width="900" height="600"> </div>
   <br></div>
   <br>
   <div class="row" >
   <div class="col-sm-3"><br></div>
-  <div class="col-sm-4"><img src="output/bitcoin_d_m_y_q.png" alt="Bitcoin Price Trends" width="900" height="600"> </div>
+  <div class="col-sm-4"><img src="output/png/bitcoin_d_m_y_q.png" alt="Bitcoin Price Trends" width="900" height="600"> </div>
   <br></div>
   <br>
   <div class="row" >
   <div class="col-sm-3"><br></div>
-  <div class="col-sm-4"><img src="output/ARIMA_corr.png" alt="Arima Autocorrelation" width="900" height="600"> </div>
+  <div class="col-sm-4"><img src="output/png/ARIMA_corr.png" alt="Arima Autocorrelation" width="900" height="600"> </div>
   <br></div>
   <br>
   <div class="row" >
   <div class="col-sm-3"><br></div>
-  <div class="col-sm-4"><img src="output/seasonal_decomp.png" alt="Arima Seasonal Decomposition" width="900" height="600"> </div>
+  <div class="col-sm-4"><img src="output/png/seasonal_decomp.png" alt="Arima Seasonal Decomposition" width="900" height="600"> </div>
   <br></div>
   <br>
   <div class="row" >
   <div class="col-sm-3"><br></div>
-  <div class="col-sm-4"><img src="output/STL_decomp.png" alt="Arima STL Decomposition" width="900" height="600"> </div>
+  <div class="col-sm-4"><img src="output/png/STL_decomp.png" alt="Arima STL Decomposition" width="900" height="600"> </div>
   <br></div>
   <br>
   <div class="row" >
   <div class="col-sm-3"><br></div>
-  <div class="col-sm-2"><img src="output/STL_resid.png" alt="Arima STL Residue" width="900" height="600"> </div>
+  <div class="col-sm-2"><img src="output/png/STL_resid.png" alt="Arima STL Residue" width="900" height="600"> </div>
   <br></div>
   <br>
   <div class="row" >
   <div class="col-sm-3"><br></div>
-  <div class="col-sm-2"><img src="output/ARIMA_forecast.png" alt="Arima Forecast" width="900" height="600"> </div>
+  <div class="col-sm-2"><img src="output/png/ARIMA_forecast.png" alt="Arima Forecast" width="900" height="600"> </div>
   <br></div>
   <div class='row'>
     <div class="col-sm-11"></div>

@@ -17,30 +17,22 @@ from keras.layers import LSTM
 from math import sqrt
 from matplotlib import pyplot
 import numpy
-import scipy as sp
 
-import xgboost as xgb
-import sklearn as sk
-import plotly
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeRegressor
+
+
+
 from sklearn.metrics import mean_absolute_error
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
+
 from xgboost import XGBRegressor
-from sklearn import preprocessing
-from scipy import optimize 
-from plotly import tools
-import chart_studio.plotly as py
-from plotly.offline import init_notebook_mode, iplot
+
+
+from plotly.offline import init_notebook_mode
 init_notebook_mode(connected=True)
 import plotly.graph_objs as go
-import gc
+
 
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set_theme()
-from prophet import Prophet
 import plotly.express as px
 from scipy import stats
 import statsmodels.api as sm
@@ -122,8 +114,8 @@ def XGB_model(x_train, y_train,x_valid,y_valid):
     print("<----------------------------------------->")
    
     print("Mean Absolute Error: " + str(mean_absolute_error(predictions, y_valid)))
-    fileXg = open("sampleMae.txt", "w+")
-    fileXg.write(str(mean_absolute_error(predictions, y_valid)))
+    fileXg = open("output/txt/sampleMae.txt", "w+")
+    fileXg.write(str(int(mean_absolute_error(predictions, y_valid))))
     fileXg.close()
     return pd.Series(predictions)
 
@@ -151,7 +143,7 @@ formating('Variation %',bitcoin,'variation')
 
 
 df=pd.DataFrame(bitcoin)
-df.to_csv("inputProphet.csv")
+df.to_csv("output/parsed_data.csv")
 
 
 
@@ -172,11 +164,11 @@ X_test, y_test = create_features(data_test, label='Dernier')
 predictions_df = XGB_model(X_train,y_train,X_test,y_test)
 print("<---------------------------THIS IS 26/11/2021 pred------------------------------------->")
 print(predictions_df[0])
-file = open("sample.txt", "w+")
+file = open("output/txt/sample.txt", "w+")
 file.write(str(int(predictions_df[0])))
 file.close()
 #Prophet prediciton Model
-data=pd.read_csv("inputProphet.csv")
+data=pd.read_csv("output/parsed_data.csv")
 data['Date']=pd.DatetimeIndex(data['Date'],dayfirst=True)
 
 print(data)
@@ -204,18 +196,21 @@ prediction_prophet=m.predict(futur)
 print(prediction_prophet)
 prediction=prediction_prophet.loc[prediction_prophet['ds'] == '2021-12-17']
 print(prediction)
-fileProphet = open("sampleProphet.txt", "w+")
-fileProphet.write(str(int(prediction.yhat_lower)))
+fileProphet = open("output/txt/sampleProphet.txt", "w+")
+fileProphet.write(str(int(prediction.yhat)))
 fileProphet.close()
-
-
+pred = prediction_prophet.loc[prediction_prophet['ds'] <= '2021-12-17']
+filePMAE = open("output/txt/samplePMAE.txt", "w+")
+filePMAE.write(str(int(mean_absolute_error(y_true=bitcoin['Dernier'],
+                   y_pred=pred.yhat))))
+filePMAE.close()
 
 
 
 #Seaborn data correlation heatmap
 df=bitcoin.astype(float)
 sns.heatmap(df.corr(), annot=True, cmap='RdYlGn', linewidths=0.1, vmin=0)
-plt.savefig("output/corr_heatmap.png")
+plt.savefig("output/png/corr_heatmap.png")
 
 ##<-----------------------------ARIMA--------------------------------------->
 #ARIMA model data pre-processing
@@ -245,13 +240,13 @@ plt.plot(data_ARIMA_year["Dernier"], '-', label='By Years')
 plt.legend()
 
 # plt.tight_layout()
-plt.savefig("output/bitcoin_d_m_y_q.png")
+plt.savefig("output/png/bitcoin_d_m_y_q.png")
 #Stationarity check and STL-decomposition of the series
 
 plt.figure(figsize=[15,7])
 sm.tsa.seasonal_decompose(data_ARIMA_month["Dernier"]).plot()
 print("Seasonal Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month["Dernier"])[1])
-plt.savefig("output/seasonal_decomp.png")
+plt.savefig("output/png/seasonal_decomp.png")
 #Box-Cox Transformations
 data_ARIMA_month['Der_box'], lmbda = stats.boxcox(data_ARIMA_month["Dernier"])
 print("Box-Cox Trans Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month["Dernier"])[1])
@@ -269,7 +264,7 @@ plt.figure(figsize=(15,7))
 sm.tsa.seasonal_decompose(data_ARIMA_month['Der_box_diff2'][13:]).plot()   
 print("STL Decomp Dickey–Fuller test: p=%f" % sm.tsa.stattools.adfuller(data_ARIMA_month['Der_box_diff2'][13:])[1])
 
-plt.savefig("output/STL_decomp.png")
+plt.savefig("output/png/STL_decomp.png")
 # Initial approximation of parameters using Autocorrelation and Partial Autocorrelation Plots
 plt.figure(figsize=(15,7))
 ax = plt.subplot(211)
@@ -277,7 +272,7 @@ sm.graphics.tsa.plot_acf(data_ARIMA_month['Der_box_diff2'][13:].values.squeeze()
 ax = plt.subplot(212)
 sm.graphics.tsa.plot_pacf(data_ARIMA_month['Der_box_diff2'][13:].values.squeeze(), lags=48, ax=ax)
 plt.tight_layout()
-plt.savefig("output/ARIMA_corr.png")
+plt.savefig("output/png/ARIMA_corr.png")
 # Initial approximation of parameters
 Qs = range(0, 2)
 qs = range(0, 3)
@@ -326,7 +321,7 @@ sm.graphics.tsa.plot_acf(best_model.resid[13:].values.squeeze(), lags=48, ax=ax)
 print("Dickey–Fuller test:: p=%f" % sm.tsa.stattools.adfuller(best_model.resid[13:])[1])
 
 plt.tight_layout()
-plt.savefig("output/STL_resid.png")
+plt.savefig("output/png/STL_resid.png")
 # Prediction
 data_ARIMA_month2 = data_ARIMA_month[['Dernier']]
 date_list = [datetime(2021,12,31),datetime(2022,1,31),datetime(2022,2,28),datetime(2022,3,31),datetime(2022,4,30)]
@@ -338,16 +333,22 @@ data_ARIMA_month2['forecast'] = data_ARIMA_month2['forecast'].drop_duplicates()
 plt.figure(figsize=(15,7))
 data_ARIMA_month2["Dernier"].plot()
 data_ARIMA_month2.forecast.drop_duplicates().plot(color='r', ls='--', label='Predicted Ouv')
-print(data_ARIMA_month2.forecast)
+print(data_ARIMA_month2)
+print(data_ARIMA_month2.index)
 plt.legend()
-plt.title('Bitcoin exchanges, by months')
+plt.title('Bitcoin Arima Forecast')
 plt.ylabel('mean USD')
-plt.savefig("output/ARIMA_forecast.png")
+plt.savefig("output/png/ARIMA_forecast.png")
+da =[]
+da = data_ARIMA_month2.loc[data_ARIMA_month2.index <= '2021-12-31']
+print(da )
+armae =mean_absolute_error(y_true = data_ARIMA_month.Dernier,y_pred = da.forecast.drop_duplicates())
+fileAMAE = open("output/txt/sampleAMae.txt", "w+")
+fileAMAE.write(str(int(armae)))
+fileAMAE.close()
 #<------------------------------LSTM-------------------------------->
-# date-time parsing function for loading the dataset
-def parser(x):
-	return datetime.strptime('190'+x, '%Y-%m')
- 
+
+
 # frame a sequence as a supervised learning problem
 def timeseries_to_supervised(data, lag=1):
 	df = DataFrame(data)
@@ -410,8 +411,8 @@ def forecast_lstm(model, batch_size, X):
 	return yhat[0,0]
  
 # load dataset
-series =read_csv('inputProphet.csv',index_col='Date',parse_dates=True,dayfirst=True)
-series=series['Dernier']
+series =read_csv('output/parsed_data.csv',index_col='Date',parse_dates=True,dayfirst=True)
+series=series['Ouv.']
 # split_date ='2020-01-31'
 # series = series.loc[series.index>=split_date]
 print(series.head())
@@ -421,19 +422,43 @@ print(series.head())
  
 # transform data to be stationary
 raw_values = series.values
-diff_values = difference(raw_values, 1)
+raw_values = raw_values[::-1]
+
+diff_values = difference(raw_values, 1)   
+diff_values=diff_values[::-1]
+#diff_values = difference(series, 1)
  
 # transform data to be supervised learning
 supervised = timeseries_to_supervised(diff_values, 1)
-supervised_values = supervised.values
 
- 
+supervised_values = supervised.values
+supervised_values = supervised_values[::-1]
+
+
+
+
+
+
+
 # split data into train and test-sets
 train, test = supervised_values[0:-30], supervised_values[-30:]
  
 # transform the scale of the data
 scaler, train_scaled, test_scaled = scale(train, test)
- 
+
+
+
+
+time=[]
+
+for i in range(0,30,1):
+    time.append(series.index[i])
+    
+
+print(time)
+print(len(time))    
+
+
 # fit the model
 lstm_model = fit_lstm(train_scaled, 1, 10, 4)
 # forecast the entire training dataset to build up state for forecasting
@@ -458,17 +483,29 @@ for i in range(len(test_scaled)):
 # report performance
 rmse = sqrt(mean_squared_error(raw_values[-30:], predictions))
 print('Test RMSE: %.3f' % rmse)	
-print(predictions)
-fileR = open("sampleRmse.txt", "w+")
-fileR.write(str(rmse))
-fileR.close()
+
 
 # line plot of observed vs predicted
- 
 
-pyplot.plot(raw_values[-30:])
-pyplot.plot(predictions)
+tempo=[]
+for i in range(30):
+    tempo.append(predictions[i])
+
+tempo=tempo[::-1]
+
+pyplot.plot(series)   #modifié
+pyplot.plot(time,tempo,color='green')
 pyplot.show()
+# report performance
+fileR = open("output/txt/sampleRmse.txt", "w+")
+fileR.write(str(int(rmse)))
+fileR.close()
+print(tempo)
+fileProphet = open("output/txt/sampleLSTM.txt", "w+")
+fileProphet.write(str(int(tempo[0])))
+fileProphet.close()
+
+ 
 
 #<---------------------------Graphs--------------------------->
 weights = np.arange(1,11)
@@ -481,7 +518,7 @@ trace1 = go.Scatter(
     x = ax,
     y= bitcoin['Dernier'],
     mode = 'lines+markers',
-    name = 'Open'
+    name = 'Close'
 )
 trace2 = go.Scatter(
     x = ax,
@@ -507,6 +544,13 @@ trace5 = go.Scatter(
     mode = 'lines',
     name = '10 WMA',
     marker_color='yellow'
+)
+trace6 = go.Scatter(
+    x = time,
+    y= tempo,
+    mode = 'lines',
+    name = 'LSTM',
+    marker_color='green'
 )
 layout = dict(
     title='Historical Bitcoin Open Prices (2012-2021) and Model Predictions',
@@ -543,20 +587,20 @@ layout = dict(
 print('================================ARIMA 26-11 pred ========================================')
 
 
-filearima = open("sampleARIMA.txt", "w+")
+filearima = open("output/txt/sampleARIMA.txt", "w+")
 filearima.write(str(int(data_ARIMA_month2.forecast.get("2021-12-31").drop_duplicates().array[0])))
 filearima.close()
 
-data = [trace1,trace2,trace3,trace4,trace5]
+data = [trace1,trace2,trace3,trace4,trace5,trace6]
 fig = go.Figure(data=data,layout=layout)
 fig.update_layout(template="plotly_dark")
-fig.write_html("output/output.html")
+fig.write_html("output/html/output.html")
 #<-----------------------Xg/bitcoin Graph ---------------------->
 trace = go.Scatter(
     x = ax,
     y= bitcoin['Dernier'],
     mode = 'lines+markers',
-    name = 'Open'
+    name = 'Close'
 )
 traceXg = go.Scatter(
     x = ax,
@@ -568,13 +612,13 @@ traceXg = go.Scatter(
 dataXgboost = [trace,traceXg,trace5]
 fig2 = go.Figure(data=dataXgboost,layout=layout)
 fig2.update_layout(template="plotly_dark")
-fig2.write_html("output/outputXg.html")
+fig2.write_html("output/html/outputXg.html")
 #<-----------------------Prophet/bitcoin Graph ---------------------->
 trace = go.Scatter(
     x = ax,
     y= bitcoin['Dernier'],
     mode = 'lines+markers',
-    name = 'Open'
+    name = 'Close'
 )
 traceP = go.Scatter(
     x = prediction_prophet.ds,
@@ -585,13 +629,13 @@ traceP = go.Scatter(
 dataP = [trace,traceP,trace5]
 fig3 = go.Figure(data=dataP,layout=layout)
 fig3.update_layout(template="plotly_dark")
-fig3.write_html("output/outputProphet.html")
+fig3.write_html("output/html/outputProphet.html")
 #<-----------------------Arima/bitcoin Graph ---------------------->
 trace = go.Scatter(
     x = ax,
     y= bitcoin['Dernier'],
     mode = 'lines+markers',
-    name = 'Open'
+    name = 'Close'
 )
 traceA = go.Scatter(
     x = ax_ARIMA,
@@ -603,7 +647,13 @@ traceA = go.Scatter(
 dataA = [trace,traceA,trace5]
 fig4 = go.Figure(data=dataA,layout=layout)
 fig4.update_layout(template="plotly_dark")
-fig4.write_html("output/outputARIMA.html")
+fig4.write_html("output/html/outputARIMA.html")
+#<-----------------------LSTM/bitcoin Graph ---------------------->
+
+dataL = [trace,trace6,trace5]
+figL = go.Figure(data=dataL,layout=layout)
+figL.update_layout(template="plotly_dark")
+figL.write_html("output/html/outputLSTM.html")
 print("<----------------------------------------->")
 print("Output File is Ready")
 

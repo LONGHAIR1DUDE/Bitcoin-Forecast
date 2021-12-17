@@ -2,3 +2,6 @@
 /firstTest.py
 /btc_to_usd.py
 /xgboost
+/output/txt/*
+/output/html/*
+/ouput/png/*
