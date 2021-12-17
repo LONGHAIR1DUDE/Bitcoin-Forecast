@@ -16,10 +16,10 @@
 ### **Installation :** 
 #### _On recommende l'utilisation de l'application dans un environnement anaconda fonctionnel._
 * ### **Linux :**
-  * ### On peut faire   `git clone` directement du page [GitLab](https://forge.univ-lyon1.fr/p1803192/lifprojet-rc3) du projet .
-  * ### Pour l'application on se mets dans le répertoire `~lifprojet-RC3` et lancer la commande : 
+  * #### On peut faire   `git clone` directement du page [GitLab](https://forge.univ-lyon1.fr/p1803192/lifprojet-rc3) du projet .
+  * #### Pour l'application on se mets dans le répertoire `~lifprojet-RC3` et lancer la commande : 
     `python3 projet_test.py`  
-  * ###  Pour  mieux visualiser les données lancer la page web `index.html` dans votre navigateur web .
+  * ####  Pour  mieux visualiser les données lancer la page web `index.html` dans votre navigateur web .
     #
     #### **Dépendances :**
   * ##### Numpy.
