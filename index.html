@@ -111,9 +111,9 @@
       <a class="nav-link ms-3 my-1" href="#item-1-3">Prophet</a>
       <a class="nav-link ms-3 my-1" href="#item-1-4">ARIMA</a>
     </nav>
-    <a class="nav-link" href="#item-2">Browse Data</a>
-    <a class="nav-link" href="#item-3">See All Graphs</a>
-    <a class="nav-link" href="#item-4">Full Forecasts</a>
+    
+    <a class="nav-link" href="#item-2">See All Graphs</a>
+    
 
   </nav>
 </nav>
@@ -138,7 +138,7 @@
 	})
 	.then((text) => {
   		console.log(text);
-      document.getElementById('blur').innerHTML = " <br><center> XGBoost :</center> \n <font size='2'>Predicted Opening :<br></font> <br><center><font size='5'>"+text+" $</font> </center> ";
+      document.getElementById('blur').innerHTML = " <br><center> XGBoost :</center> \n <font size='2'>Today's Predicted Closing :<br></font> <br><center><font size='5'>"+text+" $</font> </center> ";
 	});
   predArima = fetch("sampleARIMA.txt")
 	.then((response) => {
@@ -154,7 +154,7 @@
 	})
 	.then((text) => {
   		console.log(text);
-      document.getElementById('blurProphet').innerHTML = " <br><center>Prophet :</center> \n <font size='2'>Predicted Opening :<br></font> <br><center><font size='5'>"+text+" $</font> </center> ";
+      document.getElementById('blurProphet').innerHTML = " <br><center>Prophet :</center> \n <font size='2'>Today's Predicted Closing  :<br></font> <br><center><font size='5'>"+text+" $</font> </center> ";
 	});
   predLSTM = fetch("sampleLSTM.txt")
 	.then((response) => {
@@ -162,7 +162,7 @@
 	})
 	.then((text) => {
   		console.log(text);
-      document.getElementById('blurLSTM').innerHTML = " <br><center> LSTM prediction</center> \n <font size='2'>Predicted Opening :</font> <center><font size='5'>"+text+" $ </font></center> <br>";
+      document.getElementById('blurLSTM').innerHTML = " <br><center> LSTM prediction</center> \n <font size='1'>Today's Predicted Closing :</font> <center><font size='5'>"+text+" $ </font></center> <br>";
 	});
  
  
@@ -262,7 +262,7 @@
     <div class="col-auto"><br></div>
     <div class="col-sm-4"><br></div>
     <div class="col-auto"><br></div>
-    <div id="pred" class = "col-sm-3"><div id="XgBoost"><br><center>ARIMA </center><br></div>
+    <div id="pred" class = "col-sm-3"><div id="Arima"><br><center>ARIMA </center><br></div>
     </div>
   </div>
   <br>
@@ -277,6 +277,48 @@
   </iframe>
   </div></div>
   <br>
+  <div class="row" id="item-2">
+    <div class="col-auto"><br></div>
+    <div class="col-sm-4"><br></div>
+    <div class="col-auto"><br></div>
+    <div id="pred" class = "col-sm-3"><div id="XgBoost"><br><center>Graphs</center><br></div>
+    </div>
+  </div>
+  <br>
+  <div class="row" >
+  <div class="col-sm-3"><br></div>
+  <div class="col-sm-4"><img src="output/corr_heatmap.png" alt="Feature Correlation heatmap" width="900" height="600"> </div>
+  <br></div>
+  <br>
+  <div class="row" >
+  <div class="col-sm-3"><br></div>
+  <div class="col-sm-4"><img src="output/bitcoin_d_m_y_q.png" alt="Bitcoin Price Trends" width="900" height="600"> </div>
+  <br></div>
+  <br>
+  <div class="row" >
+  <div class="col-sm-3"><br></div>
+  <div class="col-sm-4"><img src="output/ARIMA_corr.png" alt="Arima Autocorrelation" width="900" height="600"> </div>
+  <br></div>
+  <br>
+  <div class="row" >
+  <div class="col-sm-3"><br></div>
+  <div class="col-sm-4"><img src="output/seasonal_decomp.png" alt="Arima Seasonal Decomposition" width="900" height="600"> </div>
+  <br></div>
+  <br>
+  <div class="row" >
+  <div class="col-sm-3"><br></div>
+  <div class="col-sm-4"><img src="output/STL_decomp.png" alt="Arima STL Decomposition" width="900" height="600"> </div>
+  <br></div>
+  <br>
+  <div class="row" >
+  <div class="col-sm-3"><br></div>
+  <div class="col-sm-2"><img src="output/STL_resid.png" alt="Arima STL Residue" width="900" height="600"> </div>
+  <br></div>
+  <br>
+  <div class="row" >
+  <div class="col-sm-3"><br></div>
+  <div class="col-sm-2"><img src="output/ARIMA_forecast.png" alt="Arima Forecast" width="900" height="600"> </div>
+  <br></div>
   <div class='row'>
     <div class="col-sm-11"></div>
     <div class="col-auto"><br>
