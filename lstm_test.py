@@ -89,19 +89,43 @@ print(series.head())
  
 # transform data to be stationary
 raw_values = series.values
-diff_values = difference(raw_values, 1)
+raw_values = raw_values[::-1]
+
+diff_values = difference(raw_values, 1)   
+diff_values=diff_values[::-1]
+#diff_values = difference(series, 1)
  
 # transform data to be supervised learning
 supervised = timeseries_to_supervised(diff_values, 1)
-supervised_values = supervised.values
 
- 
+supervised_values = supervised.values
+supervised_values = supervised_values[::-1]
+
+
+
+
+
+
+
 # split data into train and test-sets
 train, test = supervised_values[0:-30], supervised_values[-30:]
  
 # transform the scale of the data
 scaler, train_scaled, test_scaled = scale(train, test)
- 
+
+
+
+
+time=[]
+
+for i in range(0,30,1):
+    time.append(series.index[i])
+    
+
+print(time)
+print(len(time))    
+
+
 # fit the model
 lstm_model = fit_lstm(train_scaled, 1, 10, 4)
 # forecast the entire training dataset to build up state for forecasting
@@ -129,8 +153,47 @@ print('Test RMSE: %.3f' % rmse)
 
 
 # line plot of observed vs predicted
- 
 
-pyplot.plot(raw_values[-30:])
-pyplot.plot(predictions)
+tempo=[]
+for i in range(30):
+    tempo.append(predictions[i])
+
+tempo=tempo[::-1]
+
+pyplot.plot(series)   #modifié
+pyplot.plot(time,tempo,color='green')
 pyplot.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
