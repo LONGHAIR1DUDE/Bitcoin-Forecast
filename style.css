@@ -1,0 +1,117 @@
+
+.page-holder {
+    min-height: 100vh;
+  }
+  
+  .bg-cover {
+    background-size: cover !important;
+  }
+  iframe {
+    border: 1px solid black;
+    width: 100%;
+}
+
+.output {
+    background: #eee;
+}
+#pred
+{
+
+background: rgba(196, 196, 196, 0.1);
+mix-blend-mode: normal;
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(50px);
+/* Note: backdrop-filter has minimal browser support */
+border-radius: 7px;
+
+
+}
+#Mae
+{
+
+background: rgba(60, 255, 0, 0.2);
+mix-blend-mode: normal;
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(50px);
+/* Note: backdrop-filter has minimal browser support */
+border-radius: 7px;
+
+
+}
+#blur, #blurProphet , #blurLSTM , #blurArima , #blurReal
+{
+  color: rgba(0,255,0,2);
+}
+#XgBoost , #MaeXg ,#Rmse
+{
+  color : rgba(255,215,0,3)
+}
+.bg
+{
+  background: url(btc1.jpg) ; 
+  background-attachment: local;
+}
+#button {
+  display: inline-block;
+  background-color: #FF9800;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  border-radius: 4px;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  transition: background-color .3s, 
+    opacity .5s, visibility .5s;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1000;
+}
+#button::after {
+  content: "\f077";
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 2em;
+  line-height: 50px;
+  color: #fff;
+}
+#button:hover {
+  cursor: pointer;
+  background-color: #333;
+}
+#button:active {
+  background-color: #555;
+}
+#button.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Styles for the content section */
+
+.content {
+  width: 77%;
+  margin: 50px auto;
+  font-family: 'Merriweather', serif;
+  font-size: 17px;
+  color: #6c767a;
+  line-height: 1.9;
+}
+@media (min-width: 500px) {
+  .content {
+    width: 43%;
+  }
+  #button {
+    margin: 30px;
+  }
+}
+.content h1 {
+  margin-bottom: -10px;
+  color: #03a9f4;
+  line-height: 1.5;
+}
+.content h3 {
+  font-style: italic;
+  color: #96a2a7;
+}
