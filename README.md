@@ -6,7 +6,7 @@
 
 ***
 ### **Objectif :**
-###  Application de plusieurs modèles de prédictions issus de différentes Bibliothèques Python implementant des techniques de Deep et de Machine sur les données historiques OHLCV (2012-2021) du [Bitcoin](https://coinmarketcap.com/currencies/bitcoin/) pour tenter de prédir le cours de celui-ci et présentation des résultats sur forme d'un site web (`index.html` ).
+###  Application de plusieurs modèles de prédictions issus de différentes Bibliothèques Python implementant des techniques de Deep et de Machine Learning sur les données historiques OHLCV (2012-2021) du [Bitcoin](https://coinmarketcap.com/currencies/bitcoin/) pour tenter de prédire le cours de celui-ci et présentation des résultats sous forme d'un site web (`index.html` ).
 ### Les modèles de prédiction implémentés :
  * XGBOOST  : eXtreme Gradient Boosting .
  * Facebook Prophet .
